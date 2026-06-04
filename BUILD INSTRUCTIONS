@@ -1,0 +1,213 @@
+# Build and Execution Instructions
+
+## Prerequisites
+
+The project requires:
+
+* Python 3.9 or newer
+* pip package manager
+* OpenCV
+* NumPy
+* Matplotlib
+
+GPU acceleration is optional. If a CUDA-enabled OpenCV build is available, the tracker automatically utilizes GPU-based template matching. Otherwise, the application falls back to CPU execution.
+
+---
+
+## Project Structure
+
+```text
+project/
+│
+├── main.py
+├── requirements.txt
+├── README.md
+├── BUILD_INSTRUCTIONS.md
+│
+├── input/
+│   └── video.mp4
+│
+├── outputs/
+│   ├── tracking_output.jsonl
+│   └── annotated_output.mp4
+│
+└── tracker/
+    ├── motion_model.py
+    ├── object_tracker.py
+    └── hybrid_tracker.py
+```
+
+---
+
+## Installation
+
+Clone or extract the project files.
+
+Create a virtual environment:
+
+```bash
+python -m venv venv
+```
+
+Activate the environment:
+
+### Windows
+
+```bash
+venv\Scripts\activate
+```
+
+### Linux / macOS
+
+```bash
+source venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Running the Tracker
+
+Provide:
+
+1. Input video file
+2. Initial bounding box coordinates
+
+Example:
+
+```bash
+python main.py \
+--video input/video.mp4 \
+--bbox 2260,1020,240,270 \
+--output outputs/tracking_output.jsonl \
+--annotated-video outputs/annotated_output.mp4
+```
+
+Where:
+
+```text
+x = 2260
+y = 1020
+width = 240
+height = 270
+```
+
+represent the initial object location in the first frame.
+
+---
+
+## Output Files
+
+### JSON Output
+
+For each frame, the tracker generates:
+
+```json
+{
+  "frame_index": 25,
+  "bbox": {
+    "x": 2215.3,
+    "y": 1031.4,
+    "width": 240,
+    "height": 270
+  },
+  "tracker_confidence": 0.91,
+  "motion_model_confidence": 0.86,
+  "trusted_output_source": "object_tracker"
+}
+```
+
+### Annotated Video
+
+An optional video file containing:
+
+* Bounding box visualization
+* Confidence scores
+* Active tracking source
+
+is also generated.
+
+---
+
+## Execution Flow
+
+1. Load video and first frame.
+2. Extract user-selected template.
+3. Initialize constant velocity motion model.
+4. Predict next object position.
+5. Perform visual template matching.
+6. Evaluate tracker confidence.
+7. Fuse tracker and motion estimates.
+8. Generate final output.
+9. Save results and annotated video.
+
+---
+
+## Performance Notes
+
+### CPU Mode
+
+* Supported on all systems.
+* Suitable for short and medium-length videos.
+
+### GPU Mode
+
+* Requires CUDA-enabled OpenCV.
+* Accelerates template matching.
+* Reduces frame processing latency.
+
+The application automatically detects GPU availability and selects the appropriate execution path.
+
+---
+
+## Troubleshooting
+
+### Bounding box drifts away from object
+
+Possible causes:
+
+* Incorrect initial bounding box.
+* Object occupies very small area of frame.
+* Significant appearance changes.
+
+Recommended solution:
+
+* Use a tighter initial bounding box.
+* Resize very high-resolution videos before tracking.
+
+### GPU not being used
+
+Verify:
+
+```python
+print(cv2.cuda.getCudaEnabledDeviceCount())
+```
+
+Expected:
+
+```text
+1 or greater
+```
+
+If the result is 0, OpenCV was not built with CUDA support.
+
+---
+
+## Expected Deliverables
+
+The final submission includes:
+
+* Source code
+* README.md
+* BUILD_INSTRUCTIONS.md
+* requirements.txt
+* Sample output JSON
+* Sample annotated tracking video
+
+```
+```
